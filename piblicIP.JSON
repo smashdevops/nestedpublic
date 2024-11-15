@@ -1,0 +1,41 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.JSON#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "VMendpoint": {
+            "type": "string",
+            "metadata": {
+                "description": "define endpoint for virtual machine"
+            },
+            "defaultvalue": "Public"
+        }
+    },
+        "resources": [
+            {
+                "condition": "[equals(parameters('VMendpoint'), 'Public')]",
+                "name": "publicIPAddress1",
+                "type": "Microsoft.Network/publicIPAddresses",
+                "apiVersion": "2023-11-01",
+                "location": "[resourceGroup().location]",
+                "tags": {
+                    "displayName": "publicIPAddress1"
+                },
+                "properties": {
+                    "publicIPAllocationMethod": "Dynamic",
+                    "dnsSettings": {
+                        "domainNameLabel": "dnsname1"
+                    }
+                }
+            }
+
+        ],
+        "outputs":{
+            "PublicIPAddress": {
+                "type": "string",
+                "value": "[resourceId('Microsoft.Network/publicIPAddresses','publicIPAddress1')]"
+            }
+
+
+        }
+
+    }
