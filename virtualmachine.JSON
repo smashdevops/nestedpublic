@@ -1,0 +1,134 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.JSON#",
+    "contentVersion": "1.0.0.0",
+    "variables": {
+        "subnet": "[resourceId('Microsoft.Network/virtaulnetworks/subnet', 'fzn-aue-dev-vnet01','fzn-aue-dev-vnet01-infra01')]"
+
+
+
+    },
+    "parameters": {
+        "vmName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of virtual machine"
+            },
+            "defaultvalue": "fznlab01"
+        },
+        "vmSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of virtual machine"
+            },
+            "defaultvalue": "Standard_B2ms"
+        },
+        "adminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": "admin password of virtual machine"
+            },
+            "defaultvalue": "SEcURE0923jk;jsdf877"
+        },
+        "OSversion": {
+            "type": "string",
+            "metadata": {
+                "description": "Operating system version"
+            },
+            "defaultvalue": "Win2022AzureEdition"
+        }
+
+    },
+
+    "resources": [
+        {
+            "name": "linkedDeployment1",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://github.com/smashdevops/nested/blob/f2d3fb7d8076a359585808efe69af546c456b616/publicIP.JSON",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "VMendpoint": {
+                        "value": "Public"
+                    }
+                }
+            }
+        },
+
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('vmName'),'niccard01')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[reference('linkeddeployment1').outputs.resourceId.value]"
+                            },
+                            "subnet": {
+                                "id": "[variables('subnet')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2023-03-01",
+            "name": "[parameters('vmName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('vmName')]",
+                    "adminUsername": "[concat(parameters('vmName'),'admin')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "[parameters('OSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "diskSizeGB": 1023,
+                            "lun": 0,
+                            "createOption": "Empty"
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'),'niccard01'))]"
+                        }
+                    ]
+                },
+
+                "dependsOn": [
+                    "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'),'niccard01'))]"
+
+                ]
+            }
+        }    
+    ]
+
+}
