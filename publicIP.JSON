@@ -23,7 +23,7 @@
                 "properties": {
                     "publicIPAllocationMethod": "Dynamic",
                     "dnsSettings": {
-                        "domainNameLabel": "dnsname1"
+                        "domainNameLabel": "[parameters('VMendpoint')]"
                     }
                 }
             }
