@@ -47,7 +47,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://github.com/smashdevops/nested/blob/f2d3fb7d8076a359585808efe69af546c456b616/publicIP.JSON",
+                    "uri": "https://raw.githubusercontent.com/smashdevops/nested/refs/heads/main/publicIP.JSON?token=GHSAT0AAAAAACZ4U3KN3L6ESE26J5KSY3R4ZZX7KWA",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
